@@ -1,3 +1,4 @@
 {
-  "mongoUri": "mongodb+srv://sabin:leapfrog@contactapp.b08lpaw.mongodb.net/?retryWrites=true&w=majority"
+  "mongoUri": "mongodb+srv://sabin:leapfrog@contactapp.b08lpaw.mongodb.net/?retryWrites=true&w=majority",
+  "jwtSecret": "mysecrettoken"
 }

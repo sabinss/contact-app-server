@@ -7,6 +7,8 @@ const User = require("../../models/User");
 
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const config = require("config");
 
 router.get("/login", (req, res) => {
   res.json({ message: "Sign in successfully" });
@@ -53,6 +55,56 @@ router.post(
       console.log("User signup error", err);
       res.status(500).send("Server error");
     }
+  }
+);
+
+router.post(
+  "/login",
+  [
+    check("email", "Please include a valid email").isEmail(),
+    check("password", "Password is required").exists()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    console.log("sfsd");
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return res
+          .status(400)
+          .json({ error: [{ msg: "Invalid credintials" }] });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
+      }
+
+      const payload = {
+        user: {
+          id: user.id,
+          email
+        }
+      };
+
+      jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        { expiresIn: "2 days" },
+        (err, token) => {
+          if (err) throw err;
+          //remove password from user and return to client TODO
+          res.json({ token, user });
+        }
+      );
+    } catch (err) {}
   }
 );
 
