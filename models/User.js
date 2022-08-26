@@ -28,6 +28,13 @@ const UserSchema = new mongoose.Schema({
   type: {
     type: String,
     defailt: "user"
+  },
+  isFavourite: {
+    type: Boolean,
+    default: false
+  },
+  profileUrl: {
+    type: String
   }
 });
 

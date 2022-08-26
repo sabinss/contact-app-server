@@ -52,7 +52,6 @@ router.post(
 
       res.send("User registered successfully");
     } catch (err) {
-      console.log("User signup error", err);
       res.status(500).send("Server error");
     }
   }
@@ -69,7 +68,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log("sfsd");
     const { email, password } = req.body;
 
     try {
