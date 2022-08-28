@@ -4,12 +4,35 @@ const { check, validationResult } = require("express-validator");
 
 const router = express.Router();
 
+function compare(a, b) {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+}
+
 router.get("/", async (req, res) => {
   try {
-    const contacts = await User.find({ type: "contact" }).sort({
-      isFavourite: -1
-    });
-    return res.status(200).json({ contacts });
+    const page = req.query.page ? req.query.page : 1;
+    const limit = 5;
+    const skip = page > 0 ? (page - 1) * limit : 0;
+    const totalRecord = await User.find({ type: "contact" }).count();
+    const contacts = await User.find({ type: "contact" })
+      .skip(skip)
+      .limit(limit);
+    let favouriteContacts = contacts
+      .filter((contact) => contact.isFavourite)
+      .sort(compare);
+    let notFavouriteContacts = contacts.filter(
+      (contact) => !contact.isFavourite
+    );
+    let finalContacts = [...favouriteContacts, ...notFavouriteContacts];
+    return res
+      .status(200)
+      .json({ contacts: finalContacts, totalRecord, limit });
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }

@@ -28,11 +28,8 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { email, password } = req.body;
-    var avatar = gravatar.profile_url(email, {
-      protocol: "https"
-    });
+
     try {
       let user = await User.findOne({ email });
 
@@ -41,8 +38,7 @@ router.post(
       }
 
       user = new User({
-        email,
-        avatar
+        email
       });
       const salt = await bcrypt.genSalt(10);
 
@@ -82,7 +78,7 @@ router.post(
       const isMatch = await bcrypt.compare(password, user.password);
 
       if (!isMatch) {
-        res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
+        res.status(400).json({ error: [{ msg: "Invalid credentials" }] });
       }
 
       const payload = {
